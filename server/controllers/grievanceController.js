@@ -9,14 +9,19 @@ const generateGrievanceId = () => {
 
 exports.createGrievance = async (req, res) => {
   try {
-    const { category, description, latitude, longitude, address, media } = req.body;
+    const { category, description, latitude, longitude, address, ward, media } = req.body;
 
     const grievance = await Grievance.create({
       grievanceId: generateGrievanceId(),
       citizen: req.user.id,
       category,
       description,
-      location: { latitude, longitude, address },
+      location: {
+        type: 'Point',
+        coordinates: [longitude, latitude],
+        address,
+        ward
+      },
       media: media || [],
       department: departmentMap[category] || 'General'
     });
@@ -27,22 +32,42 @@ exports.createGrievance = async (req, res) => {
   }
 };
 
-// Citizen sees their own complaints
 exports.getMyGrievances = async (req, res) => {
   const grievances = await Grievance.find({ citizen: req.user.id }).sort({ createdAt: -1 });
   res.json(grievances);
 };
 
-// Single grievance by ID
 exports.getGrievanceById = async (req, res) => {
   const grievance = await Grievance.findById(req.params.id).populate('citizen', 'name email');
   if (!grievance) return res.status(404).json({ message: 'Not found' });
   res.json(grievance);
 };
 
-// Officers/admin: view all, optionally filtered by department
 exports.getAllGrievances = async (req, res) => {
   const filter = req.query.department ? { department: req.query.department } : {};
   const grievances = await Grievance.find(filter).populate('citizen', 'name email').sort({ createdAt: -1 });
+  res.json(grievances);
+};
+
+exports.getNearbyGrievances = async (req, res) => {
+  const { longitude, latitude, radius = 200 } = req.query;
+  if (!longitude || !latitude) {
+    return res.status(400).json({ message: 'longitude and latitude are required' });
+  }
+
+  const nearby = await Grievance.find({
+    location: {
+      $near: {
+        $geometry: { type: 'Point', coordinates: [parseFloat(longitude), parseFloat(latitude)] },
+        $maxDistance: parseInt(radius)
+      }
+    }
+  });
+
+  res.json(nearby);
+};
+
+exports.getMapData = async (req, res) => {
+  const grievances = await Grievance.find({}, 'grievanceId category status location');
   res.json(grievances);
 };

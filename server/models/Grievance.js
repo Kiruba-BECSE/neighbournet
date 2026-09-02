@@ -10,12 +10,17 @@ const grievanceSchema = new mongoose.Schema({
   },
   description: { type: String, required: true },
   location: {
-    latitude: { type: Number, required: true },
-    longitude: { type: Number, required: true },
-    address: { type: String }
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    address: { type: String },
+    ward: { type: String }
   },
-  media: [{ type: String }], // Cloudinary/S3 URLs, added properly in Module 5
-  department: { type: String }, // auto-mapped from category, refined in Module 4/7
+  media: [{ type: String }],
+  department: { type: String },
   priority: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Medium' },
   status: {
     type: String,
@@ -25,5 +30,7 @@ const grievanceSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   resolvedAt: { type: Date }
 });
+
+grievanceSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Grievance', grievanceSchema);
