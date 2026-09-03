@@ -1,6 +1,7 @@
 const Grievance = require('../models/Grievance');
 const departmentMap = require('../utils/departmentMap');
 const { classifyText } = require('../utils/nlpClassifier');
+const { checkAndLinkDuplicate } = require('../utils/duplicateDetector');
 
 const generateGrievanceId = () => {
   const year = new Date().getFullYear();
@@ -29,10 +30,12 @@ exports.createGrievance = async (req, res) => {
       department: departmentMap[category] || 'General',
       severity,
       safetyRisk,
-      priority: severity // Module 7 will replace this with a full scoring formula
+      priority: severity
     });
 
-    res.status(201).json(grievance);
+    const incident = await checkAndLinkDuplicate(grievance);
+
+    res.status(201).json({ grievance, incident: incident || null });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -33,6 +33,7 @@ const grievanceSchema = new mongoose.Schema({
     enum: ['Reported', 'Verified', 'Assigned', 'In Progress', 'Resolved'],
     default: 'Reported'
   },
+  incident: { type: mongoose.Schema.Types.ObjectId, ref: 'Incident', default: null },
   createdAt: { type: Date, default: Date.now },
   resolvedAt: { type: Date }
 });
