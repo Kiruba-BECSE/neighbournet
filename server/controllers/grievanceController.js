@@ -1,5 +1,6 @@
 const Grievance = require('../models/Grievance');
 const departmentMap = require('../utils/departmentMap');
+const { classifyText } = require('../utils/nlpClassifier');
 
 const generateGrievanceId = () => {
   const year = new Date().getFullYear();
@@ -10,6 +11,8 @@ const generateGrievanceId = () => {
 exports.createGrievance = async (req, res) => {
   try {
     const { category, description, latitude, longitude, address, ward, media } = req.body;
+
+    const { severity, safetyRisk } = classifyText(description);
 
     const grievance = await Grievance.create({
       grievanceId: generateGrievanceId(),
@@ -23,7 +26,10 @@ exports.createGrievance = async (req, res) => {
         ward
       },
       media: media || [],
-      department: departmentMap[category] || 'General'
+      department: departmentMap[category] || 'General',
+      severity,
+      safetyRisk,
+      priority: severity // Module 7 will replace this with a full scoring formula
     });
 
     res.status(201).json(grievance);
@@ -68,6 +74,6 @@ exports.getNearbyGrievances = async (req, res) => {
 };
 
 exports.getMapData = async (req, res) => {
-  const grievances = await Grievance.find({}, 'grievanceId category status location');
+  const grievances = await Grievance.find({}, 'grievanceId category status location severity');
   res.json(grievances);
 };

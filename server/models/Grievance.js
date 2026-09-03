@@ -15,12 +15,14 @@ const grievanceSchema = new mongoose.Schema({
       enum: ['Point'],
       default: 'Point'
     },
-    coordinates: { type: [Number], required: true }, // [longitude, latitude]
+    coordinates: { type: [Number], required: true },
     address: { type: String },
     ward: { type: String }
   },
   media: [{ type: String }],
   department: { type: String },
+  severity: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Low' },
+  safetyRisk: { type: Boolean, default: false },
   priority: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Medium' },
   status: {
     type: String,
