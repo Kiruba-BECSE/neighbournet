@@ -19,7 +19,11 @@ const grievanceSchema = new mongoose.Schema({
     address: { type: String },
     ward: { type: String }
   },
-  media: [{ type: String }],
+  media: [{
+    url: { type: String },
+    aiObject: { type: String },
+    aiConfidence: { type: Number }
+  }],
   department: { type: String },
   severity: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Low' },
   safetyRisk: { type: Boolean, default: false },
