@@ -10,6 +10,8 @@ exports.getWardOverview = async (req, res) => {
       total: deptGrievances.length,
       pending: deptGrievances.filter(g => ['Reported', 'Assigned'].includes(g.status)).length,
       inProgress: deptGrievances.filter(g => g.status === 'In Progress').length,
+      awaitingVerification: deptGrievances.filter(g => g.status === 'Work Completed').length,
+      pendingApproval: deptGrievances.filter(g => g.status === 'Pending Admin Approval').length,
       resolved: deptGrievances.filter(g => g.status === 'Resolved').length,
       critical: deptGrievances.filter(g => g.severity === 'Critical').length
     };

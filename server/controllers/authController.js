@@ -3,7 +3,11 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
 const generateToken = (user) =>
-  jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  jwt.sign(
+    { id: user._id, role: user.role, department: user.department },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
 
 exports.register = async (req, res) => {
   try {
@@ -22,7 +26,7 @@ exports.register = async (req, res) => {
     const token = generateToken(user);
     res.status(201).json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department }
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -41,7 +45,7 @@ exports.login = async (req, res) => {
     const token = generateToken(user);
     res.json({
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user: { id: user._id, name: user.name, email: user.email, role: user.role, department: user.department }
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

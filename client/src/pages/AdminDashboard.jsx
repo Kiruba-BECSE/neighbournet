@@ -34,6 +34,8 @@ export default function AdminDashboard() {
             <p className="text-xs text-gray-400 mt-1">Total: {stats.total}</p>
             <p className="text-xs text-yellow-400">Pending: {stats.pending}</p>
             <p className="text-xs text-blue-400">In progress: {stats.inProgress}</p>
+            <p className="text-xs text-teal-400">Awaiting officer verify: {stats.awaitingVerification}</p>
+            <p className="text-xs text-orange-400">Awaiting your approval: {stats.pendingApproval}</p>
             <p className="text-xs text-green-400">Resolved: {stats.resolved}</p>
             {stats.critical > 0 && <p className="text-xs text-red-400">Critical: {stats.critical}</p>}
           </div>
