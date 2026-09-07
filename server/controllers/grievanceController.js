@@ -2,6 +2,7 @@ const Grievance = require('../models/Grievance');
 const departmentMap = require('../utils/departmentMap');
 const { classifyText } = require('../utils/nlpClassifier');
 const { checkAndLinkDuplicate } = require('../utils/duplicateDetector');
+const { autoAssignWorker } = require('../utils/autoAssign');
 
 const generateGrievanceId = () => {
   const year = new Date().getFullYear();
@@ -20,12 +21,7 @@ exports.createGrievance = async (req, res) => {
       citizen: req.user.id,
       category,
       description,
-      location: {
-        type: 'Point',
-        coordinates: [longitude, latitude],
-        address,
-        ward
-      },
+      location: { type: 'Point', coordinates: [longitude, latitude], address, ward },
       media: media || [],
       department: departmentMap[category] || 'General',
       severity,
@@ -34,8 +30,13 @@ exports.createGrievance = async (req, res) => {
     });
 
     const incident = await checkAndLinkDuplicate(grievance);
+    const worker = await autoAssignWorker(grievance);
 
-    res.status(201).json({ grievance, incident: incident || null });
+    res.status(201).json({
+      grievance,
+      incident: incident || null,
+      assignedWorker: worker ? { id: worker._id, name: worker.name } : null
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -47,7 +48,9 @@ exports.getMyGrievances = async (req, res) => {
 };
 
 exports.getGrievanceById = async (req, res) => {
-  const grievance = await Grievance.findById(req.params.id).populate('citizen', 'name email');
+  const grievance = await Grievance.findById(req.params.id)
+    .populate('citizen', 'name email')
+    .populate('assignedWorker', 'name');
   if (!grievance) return res.status(404).json({ message: 'Not found' });
   res.json(grievance);
 };
@@ -63,7 +66,6 @@ exports.getNearbyGrievances = async (req, res) => {
   if (!longitude || !latitude) {
     return res.status(400).json({ message: 'longitude and latitude are required' });
   }
-
   const nearby = await Grievance.find({
     location: {
       $near: {
@@ -72,7 +74,6 @@ exports.getNearbyGrievances = async (req, res) => {
       }
     }
   });
-
   res.json(nearby);
 };
 

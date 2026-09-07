@@ -6,6 +6,9 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const grievanceRoutes = require('./routes/grievanceRoutes');
 const incidentRoutes = require('./routes/incidentRoutes');
+const workerRoutes = require('./routes/workerRoutes');
+const officerRoutes = require('./routes/officerRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 dotenv.config();
 connectDB();
@@ -18,6 +21,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/grievances', grievanceRoutes);
 app.use('/api/incidents', incidentRoutes);
+app.use('/api/worker', workerRoutes);
+app.use('/api/officer', officerRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => res.send('NeighbourNet API running'));
 

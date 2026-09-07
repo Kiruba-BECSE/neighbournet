@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const DEPARTMENTS = require('../utils/departments');
 
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -10,7 +11,7 @@ const userSchema = new mongoose.Schema({
     enum: ['citizen', 'worker', 'officer', 'admin'],
     default: 'citizen'
   },
-  department: { type: String }, // for 'officer'/'worker' e.g. EB, Water, Road, Sanitation
+  department: { type: String, enum: [...DEPARTMENTS, ''] },
   ward: { type: String },
   createdAt: { type: Date, default: Date.now }
 });

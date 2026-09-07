@@ -10,11 +10,7 @@ const grievanceSchema = new mongoose.Schema({
   },
   description: { type: String, required: true },
   location: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point'
-    },
+    type: { type: String, enum: ['Point'], default: 'Point' },
     coordinates: { type: [Number], required: true },
     address: { type: String },
     ward: { type: String }
@@ -24,15 +20,18 @@ const grievanceSchema = new mongoose.Schema({
     aiObject: { type: String },
     aiConfidence: { type: Number }
   }],
+  afterMedia: [{ url: { type: String } }],
   department: { type: String },
   severity: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Low' },
   safetyRisk: { type: Boolean, default: false },
   priority: { type: String, enum: ['Low', 'Medium', 'High', 'Critical'], default: 'Medium' },
   status: {
     type: String,
-    enum: ['Reported', 'Verified', 'Assigned', 'In Progress', 'Resolved'],
+    enum: ['Reported', 'Assigned', 'In Progress', 'Work Completed', 'Pending Admin Approval', 'Resolved'],
     default: 'Reported'
   },
+  assignedWorker: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  escalated: { type: Boolean, default: false },
   incident: { type: mongoose.Schema.Types.ObjectId, ref: 'Incident', default: null },
   createdAt: { type: Date, default: Date.now },
   resolvedAt: { type: Date }
